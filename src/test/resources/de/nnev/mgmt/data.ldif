@@ -1,0 +1,59 @@
+dn: cn=group1,ou=groups,dc=noname-ev,dc=de
+objectClass: top
+objectClass: groupOfEntries
+objectClass: posixGroup
+cn: group1
+gidNumber: 1000
+
+dn: cn=group2,ou=groups,dc=noname-ev,dc=de
+objectClass: top
+objectClass: groupOfEntries
+objectClass: posixGroup
+cn: group2
+gidNumber: 1001
+member: uid=user1,ou=users,dc=noname-ev,dc=de
+member: uid=user2,ou=users,dc=noname-ev,dc=de
+member: uid=user3,ou=users,dc=noname-ev,dc=de
+
+dn: cn=group3,ou=groups,dc=noname-ev,dc=de
+objectClass: top
+objectClass: groupOfEntries
+objectClass: posixGroup
+cn: group3
+gidNumber: 1002
+
+dn: uid=user1,ou=users,dc=noname-ev,dc=de
+objectClass: top
+objectClass: account
+objectClass: posixAccount
+objectClass: ldapPublicKey
+cn: User 1
+uid: user1
+uidNumber: 1000
+gidNumber: 1000
+homeDirectory: /home/user1
+loginShell: /bin/zsh
+
+dn: uid=user2,ou=users,dc=noname-ev,dc=de
+objectClass: top
+objectClass: account
+objectClass: posixAccount
+objectClass: ldapPublicKey
+cn: User 2
+uid: user2
+uidNumber: 1001
+gidNumber: 1001
+homeDirectory: /home/user2
+loginShell: /bin/bash
+
+dn: uid=user3,ou=users,dc=noname-ev,dc=de
+objectClass: top
+objectClass: account
+objectClass: posixAccount
+objectClass: ldapPublicKey
+cn: User 3
+uid: user3
+uidNumber: 1002
+gidNumber: 1002
+homeDirectory: /home/user3
+loginShell: /bin/bash
