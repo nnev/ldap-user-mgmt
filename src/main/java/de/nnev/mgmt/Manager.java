@@ -2,6 +2,7 @@ package de.nnev.mgmt;
 
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSearchException;
+import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldif.LDIFException;
 import picocli.CommandLine;
 import picocli.CommandLine.*;
@@ -41,8 +42,13 @@ public class Manager implements Runnable {
       } else {
         u = new ManagerLDAP(ManagerLDAP.getLDAPiConnection());
       }
-    } catch (LDAPException | IOException | LDIFException e) {
-      throw new RuntimeException(e);
+    } catch (IOException | LDIFException e) {
+      throw new RuntimeException("Unknown error occurred", e);
+    } catch (LDAPException e) {
+      if (e.getResultCode() == ResultCode.CONNECT_ERROR) {
+        throw new RuntimeException("Unable to connect to ldap server", e);
+      }
+      throw new RuntimeException("Unknown error occurred", e);
     }
   }
 
