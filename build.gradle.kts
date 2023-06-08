@@ -9,7 +9,7 @@ group = "de.nnev"
 version = "1.0-SNAPSHOT"
 
 application {
-    mainClass.set("de.nnev.Manager")
+    mainClass.set("de.nnev.mgmt.Manager")
 }
 
 java {

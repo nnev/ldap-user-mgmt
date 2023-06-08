@@ -1,23 +1,13 @@
 package de.nnev.mgmt;
 
+import com.unboundid.ldap.sdk.*;
+import org.newsclub.net.unix.AFUNIXSocketFactory;
+
+import javax.net.SocketFactory;
+
 import static com.unboundid.ldap.sdk.ModificationType.ADD;
 import static com.unboundid.ldap.sdk.ModificationType.DELETE;
 import static com.unboundid.ldap.sdk.SearchScope.SUB;
-
-import com.unboundid.ldap.sdk.Attribute;
-import com.unboundid.ldap.sdk.DN;
-import com.unboundid.ldap.sdk.EXTERNALBindRequest;
-import com.unboundid.ldap.sdk.Entry;
-import com.unboundid.ldap.sdk.Filter;
-import com.unboundid.ldap.sdk.LDAPConnection;
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.LDAPInterface;
-import com.unboundid.ldap.sdk.LDAPSearchException;
-import com.unboundid.ldap.sdk.Modification;
-import com.unboundid.ldap.sdk.ModifyRequest;
-import com.unboundid.ldap.sdk.RDN;
-import javax.net.SocketFactory;
-import org.newsclub.net.unix.AFUNIXSocketFactory;
 
 public class ManagerLDAP {
 
@@ -49,28 +39,28 @@ public class ManagerLDAP {
   }
 
   public int addUser(String uid, String name, String gid, String shell, String home)
-      throws LDAPException {
+    throws LDAPException {
     int gidNumber = getGidNumber(gid);
     return addUser(uid, name, gidNumber, shell, home);
   }
 
   public int addUser(String uid, String name, int gidNumber, String shell, String home)
-      throws LDAPException {
+    throws LDAPException {
     checkPosixUid(uid);
     checkPosixUidUnique(uid);
 
     int uidNumber = getNextUidNumber();
     DN userDN = new DN(new RDN("uid", uid), new DN(USERS_BASE));
     Entry user =
-        new Entry(
-            userDN,
-            new Attribute("objectClass", "top", "account", "posixAccount", "ldapPublicKey"),
-            new Attribute("cn", name),
-            new Attribute("uid", uid),
-            new Attribute("uidNumber", String.valueOf(uidNumber)),
-            new Attribute("gidNumber", String.valueOf(gidNumber)),
-            new Attribute("loginShell", shell),
-            new Attribute("homeDirectory", home));
+      new Entry(
+        userDN,
+        new Attribute("objectClass", "top", "account", "posixAccount", "ldapPublicKey"),
+        new Attribute("cn", name),
+        new Attribute("uid", uid),
+        new Attribute("uidNumber", String.valueOf(uidNumber)),
+        new Attribute("gidNumber", String.valueOf(gidNumber)),
+        new Attribute("loginShell", shell),
+        new Attribute("homeDirectory", home));
 
     ldap.add(user);
 
@@ -95,11 +85,11 @@ public class ManagerLDAP {
 
     DN groupDN = new DN(new RDN("cn", gid), new DN(GROUPS_BASE));
     Entry group =
-        new Entry(
-            groupDN,
-            new Attribute("objectClass", "top", "groupOfEntries", "posixGroup"),
-            new Attribute("cn", gid),
-            new Attribute("gidNumber", String.valueOf(gidNumber)));
+      new Entry(
+        groupDN,
+        new Attribute("objectClass", "top", "groupOfEntries", "posixGroup"),
+        new Attribute("cn", gid),
+        new Attribute("gidNumber", String.valueOf(gidNumber)));
 
     ldap.add(group);
 
@@ -133,26 +123,26 @@ public class ManagerLDAP {
   }
 
   public static void checkPosixUid(String uid) {
-    if (validatePosixId(uid)) {
+    if (!validatePosixId(uid)) {
       throw new RuntimeException("Invalid user name");
     }
   }
 
   public static void checkPosixGid(String gid) {
-    if (validatePosixId(gid)) {
+    if (!validatePosixId(gid)) {
       throw new RuntimeException("Invalid group name");
     }
   }
 
   public Entry getUserEntry(String uid) throws LDAPSearchException {
     var res =
-        ldap.search(
-            ManagerLDAP.USERS_BASE,
-            SUB,
-            Filter.createANDFilter(
-                Filter.createEqualityFilter("objectClass", "account"),
-                Filter.createEqualityFilter("objectClass", "posixAccount"),
-                Filter.createEqualityFilter("uid", uid)));
+      ldap.search(
+        ManagerLDAP.USERS_BASE,
+        SUB,
+        Filter.createANDFilter(
+          Filter.createEqualityFilter("objectClass", "account"),
+          Filter.createEqualityFilter("objectClass", "posixAccount"),
+          Filter.createEqualityFilter("uid", uid)));
 
     switch (res.getEntryCount()) {
       case 0 -> throw new RuntimeException("User not found");
@@ -165,13 +155,13 @@ public class ManagerLDAP {
 
   public Entry getGroupEntry(String gid) throws LDAPSearchException {
     var res =
-        ldap.search(
-            ManagerLDAP.GROUPS_BASE,
-            SUB,
-            Filter.createANDFilter(
-                Filter.createEqualityFilter("objectClass", "groupOfEntries"),
-                Filter.createEqualityFilter("objectClass", "posixGroup"),
-                Filter.createEqualityFilter("cn", gid)));
+      ldap.search(
+        ManagerLDAP.GROUPS_BASE,
+        SUB,
+        Filter.createANDFilter(
+          Filter.createEqualityFilter("objectClass", "groupOfEntries"),
+          Filter.createEqualityFilter("objectClass", "posixGroup"),
+          Filter.createEqualityFilter("cn", gid)));
 
     switch (res.getEntryCount()) {
       case 0 -> throw new RuntimeException("Group not found");
@@ -200,22 +190,22 @@ public class ManagerLDAP {
     int nextID = entry.getAttributeValueAsInteger(attributeName);
 
     ldap.modify(
-        dn,
-        new Modification(DELETE, attributeName, String.valueOf(nextID)),
-        new Modification(ADD, attributeName, String.valueOf(nextID + 1)));
+      dn,
+      new Modification(DELETE, attributeName, String.valueOf(nextID)),
+      new Modification(ADD, attributeName, String.valueOf(nextID + 1)));
 
     return nextID;
   }
 
   public boolean isUidUnique(String uid) throws LDAPSearchException {
     var res =
-        ldap.search(
-            ManagerLDAP.USERS_BASE,
-            SUB,
-            Filter.createANDFilter(
-                Filter.createEqualityFilter("objectClass", "account"),
-                Filter.createEqualityFilter("objectClass", "posixAccount"),
-                Filter.createEqualityFilter("uid", uid)));
+      ldap.search(
+        ManagerLDAP.USERS_BASE,
+        SUB,
+        Filter.createANDFilter(
+          Filter.createEqualityFilter("objectClass", "account"),
+          Filter.createEqualityFilter("objectClass", "posixAccount"),
+          Filter.createEqualityFilter("uid", uid)));
     return res.getEntryCount() > 0;
   }
 
@@ -233,13 +223,33 @@ public class ManagerLDAP {
 
   public boolean isGidUnique(String gid) throws LDAPSearchException {
     var res =
-        ldap.search(
-            ManagerLDAP.GROUPS_BASE,
-            SUB,
-            Filter.createANDFilter(
-                Filter.createEqualityFilter("objectClass", "groupOfEntries"),
-                Filter.createEqualityFilter("objectClass", "posixGroup"),
-                Filter.createEqualityFilter("cn", gid)));
+      ldap.search(
+        ManagerLDAP.GROUPS_BASE,
+        SUB,
+        Filter.createANDFilter(
+          Filter.createEqualityFilter("objectClass", "groupOfEntries"),
+          Filter.createEqualityFilter("objectClass", "posixGroup"),
+          Filter.createEqualityFilter("cn", gid)));
     return res.getEntryCount() > 0;
+  }
+
+  public void addSshKey(String uid, String key) throws LDAPException {
+    Entry userBefore = getUserEntry(uid);
+    Entry userAfter = userBefore.duplicate();
+    userAfter.addAttribute("sshPublicKey", key);
+    var mods = Entry.diff(userBefore, userAfter, true, true);
+    if (mods.size() > 0) {
+      ldap.modify(new ModifyRequest(userBefore.getDN(), mods));
+    }
+  }
+
+  public void removeSshKey(String uid, String key) throws LDAPException {
+    Entry userBefore = getUserEntry(uid);
+    Entry userAfter = userBefore.duplicate();
+    userAfter.removeAttributeValue("sshPublicKey", key);
+    var mods = Entry.diff(userBefore, userAfter, true, true);
+    if (mods.size() > 0) {
+      ldap.modify(new ModifyRequest(userBefore.getDN(), mods));
+    }
   }
 }
