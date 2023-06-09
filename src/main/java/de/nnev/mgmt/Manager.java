@@ -5,19 +5,32 @@ import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldif.LDIFException;
 import picocli.CommandLine;
-import picocli.CommandLine.*;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.ExitCode;
+import picocli.CommandLine.Help;
 import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.ParameterException;
+import picocli.CommandLine.Parameters;
+import picocli.CommandLine.ParseResult;
+import picocli.CommandLine.RunLast;
+import picocli.CommandLine.ScopeType;
+import picocli.CommandLine.Spec;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@Command(name = "ldap-user-mgmt", mixinStandardHelpOptions = true, synopsisSubcommandLabel = "COMMAND")
+@Command(name = "ldap-user-mgmt", synopsisSubcommandLabel = "COMMAND")
 public class Manager implements Runnable {
 
-  @CommandLine.Option(names = {"-t", "--test"}, description = "Enable use of local test ldap server", scope = CommandLine.ScopeType.INHERIT)
+  @Option(names = {"-t", "--test"}, description = "Enable use of local test ldap server", scope = ScopeType.INHERIT)
   boolean debugMode = false;
+
+  @SuppressWarnings("unused")
+  @Option(names = {"-h", "--help"}, usageHelp = true, description = "Show this help message and exit.", scope = ScopeType.INHERIT)
+  boolean usageHelpRequested;
 
   @Spec
   CommandSpec spec;
@@ -28,7 +41,7 @@ public class Manager implements Runnable {
 
   private int executionStrategy(ParseResult parseResult) {
     init(); // custom initialization to be done before executing any command or subcommand
-    int retCode = new CommandLine.RunLast().execute(parseResult); // default execution strategy
+    int retCode = new RunLast().execute(parseResult); // default execution strategy
     shutdown();
     return retCode;
   }
