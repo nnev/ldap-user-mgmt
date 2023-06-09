@@ -119,9 +119,7 @@ public class Manager implements Runnable {
     for (String key : keys) {
       if (key.length() > 0) {
         u.addSshKey(username, key);
-        System.out.println(
-          Help.Ansi.AUTO.string("@|bold,green Key added successfully to user " + username + ":|@ @|underline " + key + "|@")
-        );
+        System.out.println(Help.Ansi.AUTO.string("@|bold,green Key added successfully to user " + username + ":|@ @|underline " + key + "|@"));
       }
     }
 
@@ -129,16 +127,14 @@ public class Manager implements Runnable {
   }
 
   @Command(name = "remove-ssh-key")
-  int removeSshKey(@Parameters(paramLabel = "username") String username, @Parameters(paramLabel = "fileToPublicKey") Path sshPublicKey) throws IOException, LDAPException {
+  int removeSshKey(@Parameters(paramLabel = "username") String username, @Parameters(paramLabel = "path-to-public-key") Path sshPublicKey) throws IOException, LDAPException {
     String publicKey = Files.readString(sshPublicKey, StandardCharsets.UTF_8);
 
     String[] keys = publicKey.split("\n");
     for (String key : keys) {
       if (key.length() > 0) {
         u.removeSshKey(username, key);
-        System.out.println(
-          Help.Ansi.AUTO.string("@|bold,green Key removed successfully from user " + username + " if existed:|@ @|underline " + key + " |@")
-        );
+        System.out.println(Help.Ansi.AUTO.string("@|bold,green Key removed successfully from user " + username + " if existed:|@ @|underline " + key + " |@"));
       }
     }
 
@@ -150,16 +146,12 @@ public class Manager implements Runnable {
     var user = u.getUserEntry(username);
     String[] keys = user.getAttributeValues("sshPublicKey");
     if (keys != null && keys.length > 0) {
-      System.out.println(
-        Help.Ansi.AUTO.string("@|bold,green Found the following " + keys.length + " keys for user " + username + ":|@")
-      );
+      System.out.println(Help.Ansi.AUTO.string("@|bold,green Found the following " + keys.length + " keys for user " + username + ":|@"));
       for (String key : keys) {
         System.out.println(key);
       }
     } else {
-      System.out.println(
-        Help.Ansi.AUTO.string("@|bold,yellow No keys found for user " + username + "!|@")
-      );
+      System.out.println(Help.Ansi.AUTO.string("@|bold,yellow No keys found for user " + username + "!|@"));
     }
 
     return ExitCode.OK;
