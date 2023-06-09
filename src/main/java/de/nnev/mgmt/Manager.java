@@ -112,8 +112,8 @@ public class Manager implements Runnable {
   }
 
   @Command(name = "add-ssh-key")
-  int addSshKey(@Parameters(paramLabel = "username") String username, @Parameters(paramLabel = "fileToPublicKey") Path sshPublicKey) throws IOException, LDAPException {
-    String publicKey = Files.readString(sshPublicKey, StandardCharsets.UTF_8);
+  int addSshKey(@Parameters(paramLabel = "username") String username, @Parameters(paramLabel = "path-to-public-key") Path sshPublicKeyPath) throws IOException, LDAPException {
+    String publicKey = Files.readString(sshPublicKeyPath, StandardCharsets.UTF_8);
 
     String[] keys = publicKey.split("\n");
     for (String key : keys) {
@@ -127,8 +127,8 @@ public class Manager implements Runnable {
   }
 
   @Command(name = "remove-ssh-key")
-  int removeSshKey(@Parameters(paramLabel = "username") String username, @Parameters(paramLabel = "path-to-public-key") Path sshPublicKey) throws IOException, LDAPException {
-    String publicKey = Files.readString(sshPublicKey, StandardCharsets.UTF_8);
+  int removeSshKey(@Parameters(paramLabel = "username") String username, @Parameters(paramLabel = "path-to-public-key") Path sshPublicKeyPath) throws IOException, LDAPException {
+    String publicKey = Files.readString(sshPublicKeyPath, StandardCharsets.UTF_8);
 
     String[] keys = publicKey.split("\n");
     for (String key : keys) {
