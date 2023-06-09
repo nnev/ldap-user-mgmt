@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@Command(name = "num", mixinStandardHelpOptions = true, synopsisSubcommandLabel = "COMMAND")
+@Command(name = "ldap-user-mgmt", mixinStandardHelpOptions = true, synopsisSubcommandLabel = "COMMAND")
 public class Manager implements Runnable {
 
   @CommandLine.Option(names = {"-t", "--test"}, description = "Enable use of local test ldap server", scope = CommandLine.ScopeType.INHERIT)
@@ -74,7 +74,7 @@ public class Manager implements Runnable {
     throw new ParameterException(spec.commandLine(), "Missing required subcommand");
   }
 
-  @Command
+  @Command(name = "add-noname-user")
   int addNonameUser(@Parameters(paramLabel = "username") String username, @Parameters(paramLabel = "realname") String realname) throws LDAPException {
     u.addUserWithUserGroup(username, realname, "/usr/bin/bash");
     u.addUserToGroup(username, "noname");
@@ -84,7 +84,16 @@ public class Manager implements Runnable {
     return ExitCode.OK;
   }
 
-  @Command
+  @Command(name = "add-group")
+  int addGroup(@Parameters(paramLabel = "group") String group) throws LDAPException {
+    u.addGroup(group);
+
+    System.out.println(Help.Ansi.AUTO.string("@|bold,green Group " + group + " successfully created!|@"));
+
+    return ExitCode.OK;
+  }
+
+  @Command(name = "add-user-to-group")
   int addUserToGroup(@Parameters(paramLabel = "username") String username, @Parameters(paramLabel = "group") String group) throws LDAPException {
     u.addUserToGroup(username, group);
 
@@ -93,7 +102,7 @@ public class Manager implements Runnable {
     return ExitCode.OK;
   }
 
-  @Command
+  @Command(name = "remove-user-from-group")
   int removeUserFromGroup(@Parameters(paramLabel = "username") String username, @Parameters(paramLabel = "group") String group) throws LDAPException {
     u.removeUserFromGroup(username, group);
 
@@ -102,7 +111,7 @@ public class Manager implements Runnable {
     return ExitCode.OK;
   }
 
-  @Command
+  @Command(name = "add-ssh-key")
   int addSshKey(@Parameters(paramLabel = "username") String username, @Parameters(paramLabel = "fileToPublicKey") Path sshPublicKey) throws IOException, LDAPException {
     String publicKey = Files.readString(sshPublicKey, StandardCharsets.UTF_8);
 
@@ -119,7 +128,7 @@ public class Manager implements Runnable {
     return ExitCode.OK;
   }
 
-  @Command
+  @Command(name = "remove-ssh-key")
   int removeSshKey(@Parameters(paramLabel = "username") String username, @Parameters(paramLabel = "fileToPublicKey") Path sshPublicKey) throws IOException, LDAPException {
     String publicKey = Files.readString(sshPublicKey, StandardCharsets.UTF_8);
 
@@ -136,7 +145,7 @@ public class Manager implements Runnable {
     return ExitCode.OK;
   }
 
-  @Command
+  @Command(name = "get-ssh-keys")
   int getSshKeys(@Parameters(paramLabel = "username") String username) throws LDAPSearchException {
     var user = u.getUserEntry(username);
     String[] keys = user.getAttributeValues("sshPublicKey");
