@@ -92,7 +92,7 @@ public class Manager implements Runnable {
     u.addUserWithUserGroup(username, realname, "/usr/bin/bash");
     u.addUserToGroup(username, "noname");
 
-    System.out.println(Help.Ansi.AUTO.string("@|bold,green User successfully created with user group and added to the noname group!|@"));
+    System.out.println(Help.Ansi.AUTO.string("@|bold,green User " + username + " successfully created with user group and added to the noname group!|@"));
 
     return ExitCode.OK;
   }
@@ -110,7 +110,7 @@ public class Manager implements Runnable {
   int addUserToGroup(@Parameters(paramLabel = "username") String username, @Parameters(paramLabel = "group") String group) throws LDAPException {
     u.addUserToGroup(username, group);
 
-    System.out.println(Help.Ansi.AUTO.string("@|bold,green User added to the " + group + " group!|@"));
+    System.out.println(Help.Ansi.AUTO.string("@|bold,green User " + username + " added to the " + group + " group!|@"));
 
     return ExitCode.OK;
   }
@@ -119,7 +119,7 @@ public class Manager implements Runnable {
   int removeUserFromGroup(@Parameters(paramLabel = "username") String username, @Parameters(paramLabel = "group") String group) throws LDAPException {
     u.removeUserFromGroup(username, group);
 
-    System.out.println(Help.Ansi.AUTO.string("@|bold,green User successfully removed from the " + group + " group!|@"));
+    System.out.println(Help.Ansi.AUTO.string("@|bold,green User " + username + " successfully removed from the " + group + " group!|@"));
 
     return ExitCode.OK;
   }
