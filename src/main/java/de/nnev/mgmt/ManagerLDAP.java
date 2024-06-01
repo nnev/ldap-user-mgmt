@@ -19,6 +19,18 @@ public class ManagerLDAP {
   public static final String LDAP_BASE = "dc=noname-ev,dc=de";
   public static final String USERS_BASE = "ou=users," + LDAP_BASE;
   public static final String GROUPS_BASE = "ou=groups," + LDAP_BASE;
+  public static final String USER_GROUPS_BASE = "ou=userGroups," + GROUPS_BASE;
+
+  public enum GroupType {
+    RegularGroup(GROUPS_BASE),
+    UserGroup(USER_GROUPS_BASE);
+
+    public final String BASE_DN;
+
+    GroupType(String BASE_DN){
+      this.BASE_DN = BASE_DN;
+    }
+  }
 
   public static final String UID_DN = "cn=Next POSIX UID,ou=administration," + LDAP_BASE;
   public static final String GID_DN = "cn=Next POSIX GID,ou=administration," + LDAP_BASE;
@@ -68,22 +80,22 @@ public class ManagerLDAP {
   }
 
   public int addUserWithUserGroup(String uid, String name, String shell) throws LDAPException {
-    // check valid if its a valid user name
+    // check valid if it's a valid user name
     checkPosixUid(uid);
     checkPosixUidUnique(uid);
 
-    int gidNumber = addGroup(uid);
+    int gidNumber = addGroup(uid, GroupType.UserGroup);
 
     return addUser(uid, name, gidNumber, shell, "/home/" + uid);
   }
 
-  public int addGroup(String gid) throws LDAPException {
+  public int addGroup(String gid, GroupType groupType) throws LDAPException {
     checkPosixGid(gid);
     checkPosixGidUnique(gid);
 
     int gidNumber = getNextGidNumber();
 
-    DN groupDN = new DN(new RDN("cn", gid), new DN(GROUPS_BASE));
+    DN groupDN = new DN(new RDN("cn", gid), new DN(groupType.BASE_DN));
     Entry group =
       new Entry(
         groupDN,
@@ -102,7 +114,7 @@ public class ManagerLDAP {
     Entry groupAfter = groupBefore.duplicate();
     groupAfter.addAttribute("member", user.getDN());
     var mods = Entry.diff(groupBefore, groupAfter, true, true);
-    if (mods.size() > 0) {
+    if (!mods.isEmpty()) {
       ldap.modify(new ModifyRequest(groupBefore.getDN(), mods));
     }
   }
@@ -113,7 +125,7 @@ public class ManagerLDAP {
     Entry groupAfter = groupBefore.duplicate();
     groupAfter.removeAttributeValue("member", user.getDN());
     var mods = Entry.diff(groupBefore, groupAfter, true, true);
-    if (mods.size() > 0) {
+    if (!mods.isEmpty()) {
       ldap.modify(new ModifyRequest(groupBefore.getDN(), mods));
     }
   }
@@ -238,7 +250,7 @@ public class ManagerLDAP {
     Entry userAfter = userBefore.duplicate();
     userAfter.addAttribute("sshPublicKey", key);
     var mods = Entry.diff(userBefore, userAfter, true, true);
-    if (mods.size() > 0) {
+    if (!mods.isEmpty()) {
       ldap.modify(new ModifyRequest(userBefore.getDN(), mods));
     }
   }
@@ -248,7 +260,7 @@ public class ManagerLDAP {
     Entry userAfter = userBefore.duplicate();
     userAfter.removeAttributeValue("sshPublicKey", key);
     var mods = Entry.diff(userBefore, userAfter, true, true);
-    if (mods.size() > 0) {
+    if (!mods.isEmpty()) {
       ldap.modify(new ModifyRequest(userBefore.getDN(), mods));
     }
   }

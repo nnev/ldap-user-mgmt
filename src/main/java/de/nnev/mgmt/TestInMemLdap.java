@@ -32,6 +32,7 @@ public class TestInMemLdap {
     srv.add("cn=Next POSIX GID,ou=administration,dc=noname-ev,dc=de", new Attribute("objectClass", "top", "GidNext"), new Attribute("cn", "Next POSIX GID"), new Attribute("gidNumber", "2000"));
     srv.add("ou=users,dc=noname-ev,dc=de", new Attribute("objectClass", "top", "organizationalUnit"), new Attribute("ou", "users"));
     srv.add("ou=groups,dc=noname-ev,dc=de", new Attribute("objectClass", "top", "organizationalUnit"), new Attribute("ou", "groups"));
+    srv.add("ou=userGroups,ou=groups,dc=noname-ev,dc=de", new Attribute("objectClass", "top", "organizationalUnit"), new Attribute("ou", "userGroups"));
 
     InputStream dataStream = Objects.requireNonNull(TestInMemLdap.class.getResourceAsStream("data.ldif"));
 

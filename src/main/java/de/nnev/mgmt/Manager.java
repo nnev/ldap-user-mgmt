@@ -1,10 +1,21 @@
 package de.nnev.mgmt;
 
-import com.unboundid.ldap.sdk.*;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPSearchException;
+import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldif.LDIFException;
 import picocli.CommandLine;
-import picocli.CommandLine.*;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.ExitCode;
+import picocli.CommandLine.Help;
 import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.ParameterException;
+import picocli.CommandLine.Parameters;
+import picocli.CommandLine.ParseResult;
+import picocli.CommandLine.RunLast;
+import picocli.CommandLine.ScopeType;
+import picocli.CommandLine.Spec;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -88,7 +99,7 @@ public class Manager implements Runnable {
 
   @Command(name = "add-group")
   int addGroup(@Parameters(paramLabel = "group") String group) throws LDAPException {
-    u.addGroup(group);
+    u.addGroup(group, ManagerLDAP.GroupType.RegularGroup);
 
     System.out.println(Help.Ansi.AUTO.string("@|bold,green Group " + group + " successfully created!|@"));
 
@@ -99,7 +110,7 @@ public class Manager implements Runnable {
   int addUserToGroup(@Parameters(paramLabel = "username") String username, @Parameters(paramLabel = "group") String group) throws LDAPException {
     u.addUserToGroup(username, group);
 
-    System.out.println(Help.Ansi.AUTO.string("@|bold,green User successfully created and added to the noname group!|@"));
+    System.out.println(Help.Ansi.AUTO.string("@|bold,green User added to the " + group + " group!|@"));
 
     return ExitCode.OK;
   }
@@ -108,7 +119,7 @@ public class Manager implements Runnable {
   int removeUserFromGroup(@Parameters(paramLabel = "username") String username, @Parameters(paramLabel = "group") String group) throws LDAPException {
     u.removeUserFromGroup(username, group);
 
-    System.out.println(Help.Ansi.AUTO.string("@|bold,green User successfully created and added to the noname group!|@"));
+    System.out.println(Help.Ansi.AUTO.string("@|bold,green User successfully removed from the " + group + " group!|@"));
 
     return ExitCode.OK;
   }
@@ -119,7 +130,7 @@ public class Manager implements Runnable {
 
     String[] keys = publicKey.split("\n");
     for (String key : keys) {
-      if (key.length() > 0) {
+      if (!key.isEmpty()) {
         u.addSshKey(username, key);
         System.out.println(Help.Ansi.AUTO.string("@|bold,green Key added successfully to user " + username + ":|@ @|underline " + key + "|@"));
       }
@@ -134,9 +145,9 @@ public class Manager implements Runnable {
 
     String[] keys = publicKey.split("\n");
     for (String key : keys) {
-      if (key.length() > 0) {
+      if (!key.isEmpty()) {
         u.removeSshKey(username, key);
-        System.out.println(Help.Ansi.AUTO.string("@|bold,green Key removed successfully from user " + username + " if existed:|@ @|underline " + key + " |@"));
+        System.out.println(Help.Ansi.AUTO.string("@|bold,green Key removed successfully from user " + username + " if existed:|@ @|underline " + key + "|@"));
       }
     }
 
