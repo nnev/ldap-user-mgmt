@@ -1,6 +1,8 @@
 plugins {
   id "java"
   id "application"
+
+  id "com.github.ben-manes.versions" version "0.53.0"
 }
 
 group = "de.nnev"
@@ -12,7 +14,7 @@ application {
 
 java {
   toolchain {
-    languageVersion.set(JavaLanguageVersion.of(17))
+    languageVersion.set(JavaLanguageVersion.of(21))
   }
 }
 
@@ -21,14 +23,15 @@ repositories {
 }
 
 dependencies {
-  implementation("info.picocli:picocli:4.7.3")
-  annotationProcessor("info.picocli:picocli-codegen:4.7.3")
+  implementation("info.picocli:picocli:4.7.7")
+  annotationProcessor("info.picocli:picocli-codegen:4.7.7")
 
-  implementation("com.unboundid:unboundid-ldapsdk:6.0.8")
-  implementation("com.kohlschutter.junixsocket:junixsocket-core:2.6.2")
+  implementation("com.unboundid:unboundid-ldapsdk:7.0.4")
+  implementation("com.kohlschutter.junixsocket:junixsocket-core:2.10.1")
 
-  testImplementation(platform("org.junit:junit-bom:5.9.1"))
+  testImplementation(platform("org.junit:junit-bom:6.0.3"))
   testImplementation("org.junit.jupiter:junit-jupiter")
+  testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 compileJava {
@@ -38,3 +41,16 @@ compileJava {
 tasks.named("test", Test) {
   useJUnitPlatform()
 }
+
+def isNonStable = { String version ->
+  def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }
+  def regex = /^[0-9,.v-]+(-r)?$/
+  return !stableKeyword && !(version ==~ regex)
+}
+
+tasks.named("dependencyUpdates").configure {
+  rejectVersionIf {
+    isNonStable(it.candidate.version) && !isNonStable(it.currentVersion)
+  }
+}
+dependencyUpdates.gradleReleaseChannel="current"
