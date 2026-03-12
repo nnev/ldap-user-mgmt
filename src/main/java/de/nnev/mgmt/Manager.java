@@ -23,15 +23,16 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@Command(name = "ldap-user-mgmt", synopsisSubcommandLabel = "COMMAND", subcommands = AutoComplete.GenerateCompletion.class)
+@Command(
+  name = "ldap-user-mgmt",
+  synopsisSubcommandLabel = "COMMAND",
+  subcommands = AutoComplete.GenerateCompletion.class,
+  mixinStandardHelpOptions = true
+)
 public class Manager implements Runnable {
 
   @Option(names = {"-t", "--test"}, description = "Enable use of local test ldap server", scope = ScopeType.INHERIT)
   boolean debugMode = false;
-
-  @SuppressWarnings("unused")
-  @Option(names = {"-h", "--help"}, usageHelp = true, description = "Show this help message and exit.", scope = ScopeType.INHERIT)
-  boolean usageHelpRequested;
 
   @Spec
   CommandSpec spec;

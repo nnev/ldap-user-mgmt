@@ -54,3 +54,7 @@ tasks.named("dependencyUpdates").configure {
   }
 }
 dependencyUpdates.gradleReleaseChannel="current"
+
+startScripts {
+  unixStartScriptGenerator.template = resources.text.fromFile("gradle/unixStartScript.txt")
+}
