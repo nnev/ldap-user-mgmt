@@ -4,6 +4,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldif.LDIFException;
+import picocli.AutoComplete;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ExitCode;
@@ -22,7 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@Command(name = "ldap-user-mgmt", synopsisSubcommandLabel = "COMMAND")
+@Command(name = "ldap-user-mgmt", synopsisSubcommandLabel = "COMMAND", subcommands = AutoComplete.GenerateCompletion.class)
 public class Manager implements Runnable {
 
   @Option(names = {"-t", "--test"}, description = "Enable use of local test ldap server", scope = ScopeType.INHERIT)
